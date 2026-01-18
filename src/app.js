@@ -14,6 +14,26 @@ app.post("/signup", async (req, res) => {
     res.status(400).send("error while saving user"+error.message);
   }
 });
+app.patch("/user", async (req, res) => {
+  const { userId, ...data } = req.body;
+
+  try {
+    const user = await User.findByIdAndUpdate(
+      userId,
+      data,
+      {
+        new: true,           
+        runValidators: true, 
+      }
+    );
+
+    console.log(user);
+    res.send("user updated successfully");
+  } catch (error) {
+    res.status(400).send("error while updating user " + error.message);
+  }
+});
+
 
 connectDB()
 .then(() => {
