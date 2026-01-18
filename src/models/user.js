@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 const { match } = require("type-is");
-
+const validator = require("validator");
 const userSchema = new mongoose.Schema({
     firstName: { 
         type: String,
@@ -16,15 +16,22 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
+        validate(value) {
+            if(!validator.isEmail(value)) {
+                throw new Error("Invalid email format"+  value);
+            }
     },
+},
     password: { 
         type: String,
         required: true,
         minlength: 6,
-        match:[
-  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-  "Password must contain uppercase, lowercase, number, and special character"]
+        validate(value) {
+            if(!validator.isStrongPassword(value)) {
+                throw new Error("Use a strong password it should contain at least 8 characters, one uppercase, one lowercase, one number and one symbol"+ value);
+            }
+    },
     },
     age : { 
         type: Number,
@@ -40,7 +47,12 @@ const userSchema = new mongoose.Schema({
     },
     photourl: { 
         type: String,
-        default: 'https://png.pngtree.com/png-vector/20250512/ourmid/pngtree-default-avatar-profile-icon-gray-placeholder-vector-png-image_16213764.png'
+        default: "https://png.pngtree.com/png-vector/20250512/ourmid/pngtree-default-avatar-profile-icon-gray-placeholder-vector-png-image_16213764.png",
+        validate(value) {
+            if(!validator.isURL(value)) {
+                throw new Error("Invalid URL format"+ value);
+            }
+    },
     },
     skills: { 
         type: [String],
