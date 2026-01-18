@@ -5,7 +5,7 @@ const userSchema = new mongoose.Schema({
     firstName: { 
         type: String,
         required: true,
-        minlenghth: 2,
+        minlenght: 2,
         maxlength: 30
     },
     lastName: { 
@@ -50,4 +50,5 @@ const userSchema = new mongoose.Schema({
 {
     timestamps: true 
 });
+
 module.exports = mongoose.model('User', userSchema);
