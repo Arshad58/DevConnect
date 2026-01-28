@@ -3,11 +3,10 @@ const connectDB = require('./config/database');
 const app = express();
 const User = require('./models/user');
 const { validateSignUpData } = require('./utils/validation');
-const bycrypt = require('bcrypt');
+const bcrypt = require('bcrypt');
 const cookieParser = require('cookie-parser');
 const jwt = require('jsonwebtoken');
 const {userAuth} = require("./middlewares/auth");
-
 
 
 app.use(express.json());
@@ -15,7 +14,7 @@ app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   const{firstName, lastName, email, password} = req.body;
-  const passwordHash = await bycrypt.hash(password, 10);
+  const passwordHash = await bcrypt.hash(password, 10);
   const user = new User ({
     firstName,
     lastName,
@@ -45,7 +44,7 @@ app.post("/login", async (req, res) => {
       throw new Error("Invalid credentials.");
     }
 
-    const isPasswordValid = await bycrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
     if (isPasswordValid) {
 
       const token = await jwt.sign({ _id: user._id }, "devsecretkey");
@@ -73,6 +72,12 @@ app.get("/profile", userAuth, async (req, res) => {
   }
 });
 
+app.post("/sendConnectRequest", userAuth, async (req, res) => {
+  const user = req.user;
+  console.log("connect request Sent" );
+
+  res.send(user.firstName + "sent the connection request");
+});
 
 
 app.patch("/user/:userId", async (req, res) => {
