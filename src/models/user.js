@@ -29,7 +29,7 @@ const userSchema = new mongoose.Schema({
     password: { 
         type: String,
         required: true,
-        minlength: 6,
+        minlength: 8,
         validate(value) {
             if(!validator.isStrongPassword(value)) {
                 throw new Error("Use a strong password it should contain at least 8 characters, one uppercase, one lowercase, one number and one symbol");
@@ -69,6 +69,18 @@ const userSchema = new mongoose.Schema({
 {
     timestamps: true 
 });
+
+userSchema.pre("save", async function () {
+    const user = this;
+
+    if (!user.isModified("password")) {
+        return;
+    }
+
+    const hash = await bcrypt.hash(user.password, 10);
+    user.password = hash;
+});
+
 
 userSchema.methods.getJWT = async function() {
     const user = this;

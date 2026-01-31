@@ -64,4 +64,23 @@ authRouter.post("/logout", async (req, res) => {
     .send("User logged out successfully");
 });
 
+authRouter.patch("/forgot-password", async (req, res) => {
+
+    try{
+        const { email, newPassword} = req.body;
+        const user = await User.findOne({ email: email });
+
+        if(!user){
+            throw new Error("User with this email does not exist");
+        } 
+        user.password = newPassword;
+        await user.save();
+        res.json({
+            message: "Password reset successfully!",
+        });
+    } catch(err){
+        res.status(400).send("ERROR: "+ err.message);
+    }
+});
+
 module.exports = authRouter;
