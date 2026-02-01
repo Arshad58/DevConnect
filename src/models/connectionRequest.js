@@ -12,7 +12,7 @@ const connectionRequestSchema = new moongoose.Schema({
         type: String,
         required: true,
         enum:{
-            values: ["ignored", "pending", "accepted", "rejected"],
+            values: ["ignored", "pending", "accepted", "rejected","interested"],
             message: '{VALUE} is not status type'
         },
     },    
@@ -20,8 +20,16 @@ const connectionRequestSchema = new moongoose.Schema({
     {timestamps: true}
 );
 
-const ConnectionRequestModel = new moongoose.model(
+connectionRequestSchema.pre("save", function(next){
+    const connectionRequest = this;
+    if(connectionRequest.fromUserId.equals(connectionRequest.toUserId)){
+        throw new Error("Cannot send connection request to yourself");
+    }
+    next();
+});
+
+const ConnectionRequest = new moongoose.model(
     'ConnectionRequest', 
     connectionRequestSchema
 );
-module.exports = ConnectionRequestModel;
+module.exports = ConnectionRequest;
