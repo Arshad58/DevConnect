@@ -4,6 +4,8 @@ const requestRouter = express.Router();
 const { userAuth } = require("../middlewares/auth");
 const ConnectionRequest = require("../models/connectionRequest");
 const User = require("../models/user");
+const mongoose = require("mongoose");
+
 
 
 requestRouter.post("/request/send/:status/:toUserId", userAuth, async (req, res) => {
@@ -69,9 +71,9 @@ requestRouter.post("/request/review/:status/:requestId", userAuth, async (req, r
       .status(400)
       .json({message: "Invalid status type "+ status });
     }
-    const connectionRequest = await Connection.findOne({
-      _id: requestId,
-      toUserId: loggedInUser._id,
+    const connectionRequest = await ConnectionRequest.findOne({
+      _id: new mongoose.Types.ObjectId(requestId),
+      toUserId: new mongoose.Types.ObjectId(loggedInUser._id),
       status: "interested",
     });
     if (!connectionRequest) {

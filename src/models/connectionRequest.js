@@ -2,7 +2,7 @@ const moongoose = require('mongoose');
 const connectionRequestSchema = new moongoose.Schema({
     fromUserId: { 
         type: moongoose.Schema.Types.ObjectId,
-        requrired: true
+        required: true
     },
     toUserId: { 
         type: moongoose.Schema.Types.ObjectId,
@@ -28,7 +28,6 @@ connectionRequestSchema.pre("save", function(next){
     if(connectionRequest.fromUserId.equals(connectionRequest.toUserId)){
         throw new Error("Cannot send connection request to yourself");
     }
-    next();
 });
 
 const ConnectionRequest = new moongoose.model(
