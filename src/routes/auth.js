@@ -5,13 +5,13 @@ const { validateSignUpData } = require("../utils/validation");
 const bcrypt = require("bcrypt");
 
 authRouter.post("/signup", async (req, res) => {
-  const{firstName, lastName, email, password} = req.body;
+  const { firstName, lastName, email, password } = req.body;
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = new User ({
+  const user = new User({
     firstName,
     lastName,
     email,
-    password: passwordHash
+    password: passwordHash,
   });
 
   try {
@@ -19,11 +19,9 @@ authRouter.post("/signup", async (req, res) => {
     const savedUser = await user.save();
     res.send("user added successfully");
   } catch (error) {
-    res.status(400).send("ERROR"+error.message);
+    res.status(400).send("ERROR" + error.message);
   }
 });
-
-
 
 authRouter.post("/login", async (req, res) => {
   try {
@@ -38,49 +36,44 @@ authRouter.post("/login", async (req, res) => {
 
     const isPasswordValid = await user.validatePassword(password);
     if (isPasswordValid) {
-
       const token = await user.getJWT();
 
-      res.cookie("token", token,{ 
+      res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
-    });
+      });
       res.send("User logged in successfully");
-      
-    }else {
-
+    } else {
       throw new Error("Invalid credentials.");
     }
-  }
-  catch (err) {
+  } catch (err) {
     res.status(400).send("ERROR :  " + err.message);
   }
 });
 
 authRouter.post("/logout", async (req, res) => {
-    res
+  res
     .cookie("token", null, {
-        expires: new Date(Date.now()),
+      expires: new Date(Date.now()),
     })
     .send("User logged out successfully");
 });
 
 authRouter.patch("/forgot-password", async (req, res) => {
+  try {
+    const { email, newPassword } = req.body;
+    const user = await User.findOne({ email: email });
 
-    try{
-        const { email, newPassword} = req.body;
-        const user = await User.findOne({ email: email });
-
-        if(!user){
-            throw new Error("User with this email does not exist");
-        } 
-        user.password = newPassword;
-        await user.save();
-        res.json({
-            message: "Password reset successfully!",
-        });
-    } catch(err){
-        res.status(400).send("ERROR: "+ err.message);
+    if (!user) {
+      throw new Error("User with this email does not exist");
     }
+    user.password = newPassword;
+    await user.save();
+    res.json({
+      message: "Password reset successfully!",
+    });
+  } catch (err) {
+    res.status(400).send("ERROR: " + err.message);
+  }
 });
 
 module.exports = authRouter;
