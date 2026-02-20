@@ -4,7 +4,6 @@ const { userAuth } = require("../middlewares/auth");
 const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
 const { message } = require("statuses");
-const { useSyncExternalStore } = require("react");
 
 const USER_DATA = "firstName lastName photoUrl skills about age";
 
