@@ -6,12 +6,12 @@ const bcrypt = require("bcrypt");
 
 authRouter.post("/signup", async (req, res) => {
   const { firstName, lastName, email, password } = req.body;
-  const passwordHash = await bcrypt.hash(password, 10);
+  //const passwordHash = await bcrypt.hash(password, 10);
   const user = new User({
     firstName,
     lastName,
     email,
-    password: passwordHash,
+    password,
   });
 
   try {
@@ -41,6 +41,7 @@ authRouter.post("/login", async (req, res) => {
       res.cookie("token", token, {
         expires: new Date(Date.now() + 8 * 3600000),
       });
+      user.password = undefined;
       res.send(user);
     } else {
       throw new Error("Invalid credentials.");

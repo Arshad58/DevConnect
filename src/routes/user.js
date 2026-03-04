@@ -5,7 +5,7 @@ const User = require("../models/user");
 const ConnectionRequest = require("../models/connectionRequest");
 const { message } = require("statuses");
 
-const USER_DATA = "firstName lastName photoUrl skills about age";
+const USER_DATA = "firstName lastName photourl skills about age";
 
 userRouter.get("/user/requests/recieved", userAuth, async (req, res) => {
   try {
@@ -53,29 +53,26 @@ userRouter.get("/user/requests/sent", userAuth, async (req, res) => {
 
 userRouter.get("/feed", userAuth, async (req, res) => {
   try {
-    const loggedInUserId = req.user;
+    const loggedInUserId = req.user._id;
     const page = parseInt(req.query.page) || 1;
-    let limit = parseInt(req.query.page) || 10;
+    let limit = parseInt(req.query.limit) || 10;
     limit = limit > 50 ? 50 : limit;
     const skip = (page - 1) * limit;
 
     const connectionRequests = await ConnectionRequest.find({
-      $or: [
-        { fromUserId: loggedInUserId._id },
-        { toUserId: loggedInUserId._id },
-      ],
+      $or: [{ fromUserId: loggedInUserId }, { toUserId: loggedInUserId }],
     }).select("fromUserId toUserId");
 
     const hiddenUserFromFeed = new Set();
-    connectionRequests.forEach((row) => {
-      hiddenUserFromFeed.add(row.fromUserId.toString());
-      hiddenUserFromFeed.add(row.toUserId.toString());
+    connectionRequests.forEach((req) => {
+      hiddenUserFromFeed.add(req.fromUserId.toString());
+      hiddenUserFromFeed.add(req.toUserId.toString());
     });
 
     const feedUsers = await User.find({
       $and: [
         { _id: { $nin: Array.from(hiddenUserFromFeed) } },
-        { _id: { $ne: loggedInUserId._id } },
+        { _id: { $ne: loggedInUserId } },
       ],
     })
       .select(USER_DATA)
